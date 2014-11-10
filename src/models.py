@@ -11,6 +11,16 @@ class UserPreferenceDataModel(object):
         self.data = data
         self.build_model()
 
+    def __getitem__(self, user_id):
+        return self.preferences_from_user(user_id)
+
+    def __iter__(self):
+        for index, user in enumerate(self.user_ids):
+            yield user, self[user]
+
+    def __len__(self):
+        return self.index.shape
+
     def build_model(self):
         self.user_ids = np.asanyarray(self.data.keys())
         self.user_ids.sort()
@@ -33,12 +43,12 @@ class UserPreferenceDataModel(object):
         """
         return: numpy.ndarray
         """
-        user_id_loc = np.where(self.user_ids == user_id)
-        if not user_id_loc[0].size:
-            #user_id not found
+        found_user_id = np.where(self.user_ids == user_id)
+        if not found_user_id[0].size:
+            # user_id not found
             raise UserNotFoundError
 
-        preferences = self.index[user_id_loc]
+        preferences = self.index[found_user_id]
 
         return preferences
 
@@ -59,3 +69,4 @@ class UserPreferenceDataModel(object):
 
     def users_count(self):
         return self.user_ids.size
+
