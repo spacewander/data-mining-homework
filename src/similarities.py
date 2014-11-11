@@ -92,3 +92,45 @@ class UserSimilarity(Similarity):
         for reference_id, preferences in self.model:
             yield reference_id, self[reference_id]
 
+class ItemSimilarity(Similarity):
+    """
+    get similarities between each two items
+    """
+    def __init__(self, model, metrix, num_best = None):
+        super(ItemSimilarity, self).__init__(model, metrix, num_best)
+
+    def get_similarity(self, reference_id, target_id):
+        """
+        返回结果可能是个多维数组
+        """
+        reference_preferences = self.model.preferences_from_item(reference_id)
+        target_preferences = self.model.preferences_from_item(target_id)
+
+        reference_preferences, target_preferences = \
+            find_common_elements(reference_preferences, target_preferences)
+
+        if reference_preferences.ndim == 1 and target_preferences.ndim == 1:
+            reference_preferences = np.asarray([reference_preferences])
+            target_preferences = np.asarray([target_preferences])
+
+        # evaluate the similarity between the two users vectors.
+        if not reference_preferences.shape[1] == 0 \
+                and not target_preferences.shape[1] == 0 :
+            return self.metrix(reference_preferences, target_preferences)
+        else:
+            # 没有共同点
+            return np.array([[np.nan]])
+
+    def get_similarities(self, reference_id):
+        similarities = [(other_id, self.get_similarity(reference_id, other_id))  \
+                for other_id, _ in self.model]
+        return similarities
+
+    def __iter__(self):
+        """
+        用于上面的get_similarity函数中，实现迭代器所需
+        """
+        for reference_id, preferences in self.model:
+            yield reference_id, self[reference_id]
+
+

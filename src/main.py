@@ -1,9 +1,9 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-from models import UserPreferenceDataModel as Model
+import models
+import similarities
 from metrics import pearson_correlation as metrix
-from similarities import UserSimilarity as Similarity
 import recommenders
 from evaluations import MAE, RMSE
 
@@ -13,12 +13,24 @@ def rounding(value):
 
 def recommenderFactory(data, Recommender):
     if Recommender.__base__ == recommenders.CFRecommender :
+        if Recommender.__name__ == 'ItemCFRecommender' :
+            Model = models.ItemPreferenceDataModel
+            Similarity = similarities.ItemSimilarity
+        elif Recommender.__name__ == 'UserCFRecommender' :
+            Model = models.UserPreferenceDataModel
+            Similarity = similarities.UserSimilarity
+
         model = Model(data)
         # num_best可以调，但是太少的话就得不到所需的数据了。
         # train dataset中共有用户943人，电影1650部
         similarity = Similarity(model, metrix)
         recommender = Recommender(model, similarity)
     else :
+        if Recommender.__name__ == 'ItemBasedRecommender' :
+            Model = models.ItemPreferenceDataModel
+        elif Recommender.__name__ == 'UserBasedRecommender' :
+            Model = models.UserPreferenceDataModel
+
         model = Model(data)
         recommender = Recommender(model)
     return recommender
@@ -38,8 +50,9 @@ if __name__ == '__main__' :
     data = get_dataset()
     # start running the data mining engine
     #recommender = recommenderFactory(data, recommenders.UserCFRecommender)
+    recommender = recommenderFactory(data, recommenders.ItemCFRecommender)
     #recommender = recommenderFactory(data, recommenders.MovieBasedRecomender)
-    recommender = recommenderFactory(data, recommenders.UserBasedRecommender)
+    #recommender = recommenderFactory(data, recommenders.UserBasedRecommender)
     #recommender = recommenderFactory(data, recommenders.GoodOldManBasedRecommender)
     #recommender = recommenderFactory(data, recommenders.LuckBasedRecommender)
 
