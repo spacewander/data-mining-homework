@@ -7,24 +7,31 @@ class Similarity(object):
         self.model = model
         self.metrix = metrix
         self.num_best = num_best
+        self.similarities = {}
 
     def __getitem__(self, source_id):
         """
         get relative similarities, the number of similarities is according to num_best.
         work as sim['196']
+        Warning: this method will cause a lot of computing resource, so don't forget to cache it!
         """
-        all_sims = self.get_similarities(source_id)
+        if not self.similarities.has_key(source_id) :
+            sims = self.get_similarities(source_id)
 
-        # 将结果从nparray转换成一个值
-        if all_sims:
-            item_ids, preferences = zip(*all_sims)
-            preferences = np.array(preferences).flatten()
-            item_ids = np.array(item_ids).flatten()
-            sorted_prefs = np.argsort(-preferences)
-            tops = zip(item_ids[sorted_prefs], preferences[sorted_prefs])
+            # 将结果从nparray转换成一个值
+            if sims:
+                item_ids, preferences = zip(*sims)
+                preferences = np.array(preferences).flatten()
+                item_ids = np.array(item_ids).flatten()
+                sorted_prefs = np.argsort(-preferences)
+                tops = zip(item_ids[sorted_prefs], preferences[sorted_prefs])
 
-        # 以(id, preferences)形式输出前num_best个结果
-        return tops[:self.num_best] if self.num_best is not None else tops
+            # 以(id, preferences)形式输出前num_best个结果
+            if self.num_best is not None :
+                self.similarities[source_id] = tops[:self.num_best]
+            else :
+                self.similarities[source_id] = tops
+        return self.similarities[source_id]
 
 
 def find_common_elements(reference_preferences, target_preferences):

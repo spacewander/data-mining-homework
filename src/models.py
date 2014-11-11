@@ -1,7 +1,7 @@
 # coding: utf-8
 
 import numpy as np
-from utils import UserNotFoundError
+from utils import UserNotFoundError, ItemNotFoundError
 
 class UserPreferenceDataModel(object):
     """
@@ -46,7 +46,7 @@ class UserPreferenceDataModel(object):
         found_user_id = np.where(self.user_ids == user_id)
         if not found_user_id[0].size:
             # user_id not found
-            raise UserNotFoundError
+            raise UserNotFoundError('你所查找的用户不存在')
 
         preferences = self.index[found_user_id]
 
@@ -60,6 +60,21 @@ class UserPreferenceDataModel(object):
         return [(item_id, preference)  for item_id, preference in data \
                          if not np.isnan(preference)]
 
+    def preference_value(self, user_id, item_id):
+        '''
+        return a float preference
+        '''
+        found_item_id = np.where(self.item_ids == item_id)
+        found_user_id = np.where(self.user_ids == user_id)
+
+        if not found_user_id[0].size:
+            raise UserNotFoundError('你所查找的用户不存在')
+
+        if not found_item_id[0].size:
+            raise ItemNotFoundError('你所查找的项目不存在')
+
+        return self.index[found_user_id, found_item_id].flatten()[0]
+
     def items_count(self):
         return self.item_ids.size
 
@@ -69,4 +84,10 @@ class UserPreferenceDataModel(object):
 
     def users_count(self):
         return self.user_ids.size
+
+    def max_preference_value(self):
+        return 5.0
+
+    def min_preference_value(self):
+        return 1.0
 

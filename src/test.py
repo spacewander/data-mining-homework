@@ -6,8 +6,11 @@ from main import get_dataset
 from similarities import UserSimilarity
 from models import UserPreferenceDataModel
 from metrics import pearson_correlation
+from recommenders import UserCFRecommender as Recommender
 
 data = get_dataset()
 model = UserPreferenceDataModel(data)
-sim = UserSimilarity(model, pearson_correlation, 10)
-print sim['196']
+sim = UserSimilarity(model, pearson_correlation)
+
+recommender = Recommender(model, sim)
+print recommender.recommend('244', '51')

@@ -7,3 +7,4 @@ def MAE(deviation):
 # Root Mean Square Error
 def RMSE(deviation):
     print "The RMSE is : " + str(sqrt(mean(square(deviation))))
+
