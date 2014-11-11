@@ -21,6 +21,28 @@ class LuckBasedRecommender(Recommender):
         return (user, movie, randint(1, 5))
 
 
+class MovieBasedRecomender(Recommender):
+    def __init__(self, model):
+        super(MovieBasedRecomender, self).__init__(model)
+        self.mean_from_item = {}
+
+    def recommend(self, user_id, item_id):
+        try :
+            return self._recommend(user_id, item_id)
+        except (UserNotFoundError, ItemNotFoundError) :
+            print 'lost!'
+            return (user_id, item_id, 4.0)
+
+    def _recommend(self, user_id, item_id):
+        if not self.mean_from_item.has_key(item_id) :
+            preferences = self.model.preference_values_from_item(item_id)
+            # 去掉NaN
+            preferences = preferences[~np.isnan(preferences)]
+            self.mean_from_item[item_id] = np.mean(preferences)
+
+        return (user_id, item_id, self.mean_from_item[item_id])
+
+
 class CFRecommender(Recommender):
     def __init__(self, model, similarity):
         self.model = model
