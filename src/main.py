@@ -38,7 +38,8 @@ if __name__ == '__main__' :
     data = get_dataset()
     # start running the data mining engine
     #recommender = recommenderFactory(data, recommenders.UserCFRecommender)
-    recommender = recommenderFactory(data, recommenders.MovieBasedRecomender)
+    #recommender = recommenderFactory(data, recommenders.MovieBasedRecomender)
+    recommender = recommenderFactory(data, recommenders.UserBasedRecommender)
     #recommender = recommenderFactory(data, recommenders.GoodOldManBasedRecommender)
     #recommender = recommenderFactory(data, recommenders.LuckBasedRecommender)
 
