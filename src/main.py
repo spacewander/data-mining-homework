@@ -3,7 +3,7 @@
 
 import models
 import similarities
-from metrics import pearson_correlation as metrix
+from metrics import manhattan_distances as metrix
 import recommenders
 from evaluations import MAE, RMSE
 
@@ -67,11 +67,11 @@ if __name__ == '__main__' :
             user, movie, value = recommender.recommend(datum[0], datum[1])
             value = rounding(value)
             results.write("%s\t%s\t%s\n" % (user, movie, value))
-            print "已处理：第%d条\t%s\t%s\t%s\t%s" % (i, user, movie, value, datum[2])
             deviation.append(abs(value - float(datum[2])))
-            if i >= 100 :
-                break
-
+            if i % 201 == 200 :
+                print "已处理：第%d条\t%s\t%s\t%s\t%s" % (i, user, movie, value, datum[2])
+                MAE(deviation)
+                RMSE(deviation)
     # evaluate the output
     MAE(deviation)
     RMSE(deviation)

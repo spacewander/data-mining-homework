@@ -81,7 +81,7 @@ class UserPreferenceDataModel(DataModel):
         if not found_item_id[0].size:
             raise ItemNotFoundError('你所查找的项目不存在')
 
-        return self.index[found_item_id, found_user_id].flatten()[0]
+        return self.index[found_user_id, found_item_id].flatten()[0]
 
     def items_count(self):
         return self.item_ids.size

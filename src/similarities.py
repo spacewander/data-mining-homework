@@ -24,14 +24,16 @@ class Similarity(object):
                 preferences = np.array(preferences).flatten()
                 item_ids = np.array(item_ids).flatten()
                 sorted_prefs = np.argsort(-preferences)
-                tops = zip(item_ids[sorted_prefs], preferences[sorted_prefs])
-
-            # 以(id, preferences)形式输出前num_best个结果
-            if self.num_best is not None :
-                self.similarities[source_id] = tops[:self.num_best]
+                self.similarities[source_id] = \
+                        zip(item_ids[sorted_prefs], preferences[sorted_prefs])
             else :
-                self.similarities[source_id] = tops
-        return self.similarities[source_id]
+                self.similarities[source_id] = []
+
+        # 以(id, preferences)形式输出前num_best个结果
+        if self.num_best is not None :
+            return self.similarities[source_id][:self.num_best]
+        else :
+            return self.similarities[source_id]
 
 
 def find_common_elements(reference_preferences, target_preferences):

@@ -1,6 +1,8 @@
 # coding: utf-8
 
 from random import randint
+import os.path
+import cPickle
 import numpy as np
 from utils import UserNotFoundError, ItemNotFoundError
 
@@ -69,6 +71,20 @@ class CFRecommender(Recommender):
     def __init__(self, model, similarity):
         self.model = model
         self.similarity = similarity
+        self.dump_file = 'cache_' + self.similarity.__class__.__name__ + '_' + \
+                self.similarity.metrix.__name__
+
+    def save_result(self, filename):
+        with open(filename, 'w') as f :
+            cPickle.dump(self.similarity.similarities, f)
+
+
+    def load_similarity(self, filename):
+        if os.path.exists(filename) :
+            with open(filename, 'r') as f :
+                self.similarity.similarities = cPickle.load(f)
+        else :
+            self.similarity.similarities = {}
 
 
 class UserCFRecommender(CFRecommender):
@@ -76,8 +92,8 @@ class UserCFRecommender(CFRecommender):
     基于用户的协同过滤推荐器
     """
     def __init__(self, model, similarity):
-        super(CFRecommender, self).__init__(model)
-        self.similarity = similarity
+        super(UserCFRecommender, self).__init__(model, similarity)
+        self.load_similarity(self.dump_file)
         self.nearest_neighbors = {}
         self.neighbors_similarity = {}
 
@@ -152,7 +168,7 @@ class UserCFRecommender(CFRecommender):
     def recommend(self, user_id, item_id) :
         try :
             return self._recommend(user_id, item_id)
-        except (UserNotFoundError, ItemNotFoundError) :
+        except Exception :
             print 'lost!'
             return (user_id, item_id, 4.0)
 
@@ -161,8 +177,7 @@ class ItemCFRecommender(CFRecommender):
     基于项目的协同过滤推荐器
     """
     def __init__(self, model, similarity):
-        super(CFRecommender, self).__init__(model)
-        self.similarity = similarity
+        super(ItemCFRecommender, self).__init__(model, similarity)
         self.nearest_neighbors = {}
         self.neighbors_similarity = {}
 
@@ -237,7 +252,7 @@ class ItemCFRecommender(CFRecommender):
     def recommend(self, user_id, item_id) :
         try :
             return self._recommend(user_id, item_id)
-        except (UserNotFoundError, ItemNotFoundError) :
+        except Exception :
             print 'lost!'
             return (user_id, item_id, 4.0)
 

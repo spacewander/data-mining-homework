@@ -11,12 +11,6 @@ def pearson_correlation(X, Y):
     X: array of shape
     Y: array of shape
     """
-    if X is Y:
-        X = Y = np.asanyarray(X)
-    else:
-        X = np.asanyarray(X)
-        Y = np.asanyarray(Y)
-
     if X.shape[1] != Y.shape[1]:
         raise ValueError("Incompatible dimension for X and Y matrices")
 
@@ -24,3 +18,20 @@ def pearson_correlation(X, Y):
 
     return 1 - XY
 
+def jaccard_coefficient(X, Y):
+    """
+    The MAE is : 0.925
+    The RMSE is : 1.21449578015
+    """
+    if X.shape[1] != Y.shape[1]:
+        raise ValueError("Incompatible dimension for X and Y matrices")
+
+    return np.intersect1d(X, Y).size
+
+def manhattan_distances(X, Y):
+    if X.shape[1] != Y.shape[1]:
+        raise ValueError("Incompatible dimension for X and Y matrices")
+
+    XY = ssd.cdist(X, Y, 'cityblock')
+
+    return 1.0 - (XY / float(X.shape[1]))
