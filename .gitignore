@@ -55,4 +55,11 @@ target/
 
 data-rs/*
 results.txt
-src/cache_*
+*/cache_*
+src/*
+
+CMakeCache.txt
+CMakeFiles/
+Makefile
+bin/*
+cmake_install.cmake
