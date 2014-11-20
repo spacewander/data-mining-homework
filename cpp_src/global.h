@@ -19,8 +19,10 @@ vector<float> bu(USER_NUM, 0);
 vector<float> bi(ITEM_NUN, 0);
 vector<int> un(USER_NUM, 0);
 vector<int> in(ITEM_NUN, 0);
-vector<vector<double> > p(USER_NUM);
-vector<vector<double> > q(ITEM_NUN);
+vector<double> p(USER_NUM, 0.0);
+vector<double> q(ITEM_NUN, 0.0);
+vector<double> yj(ITEM_NUN, -0.1);
+vector<double> yi(USER_NUM, -0.1);
 float mean = 0;
 
 #endif /* GLOBAL_H */

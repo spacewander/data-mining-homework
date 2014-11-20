@@ -12,52 +12,48 @@
 
 int my_round(float input)
 {
-    if (input > 4) {
-        if (input > 4.395) {
-            return 5;
-        }
-        else {
-            return 4;
-        }
-    }
-    else if (input < 2) {
-        if (input < 1.65) {
-            return 1;
-        }
-        else {
-            return 2;
-        }
-    }
+    //if (input > 4) {
+        //if (input > 4.395) {
+            //return 5;
+        //}
+        //else {
+            //return 4;
+        //}
+    //}
+    //else if (input < 2) {
+        //if (input < 1.65) {
+            //return 1;
+        //}
+        //else {
+            //return 2;
+        //}
+    //}
     return round(input);
 }
 
 
-void fillWithRand(vector<double> &p)
+void fillWithRand(double &p)
 {
-    if (p.size() == 0) {
-        float base = 1 / DIM;
-        p.resize(DIM);
-        for (int i = 0; i < DIM; ++i) {
-            p[i] = base + (rand() % 100 +1) / 1000;
-        }
+    if (p == 0.0) {
+        float base = 0.525;
+        p = base + (rand() % 1000 +1) / 1000;
     }
 }
 
 
-double dot(vector<double> &p, vector<double> &q)
+double dot(const double &p, const double &q, int userId, int movieId)
 {
     double result = 0.0;
-    int min = p.size() > q.size() ? q.size() : p.size();
-    for (int i = 0; i < min; ++i) {
-        result += p[i] * q[i];
-    }
+    result = p * (q + 
+            (1.0 / sqrt(un[userId - 1]) * yj[movieId - 1] +// ));
+             1.0 / sqrt(in[movieId - 1]) * yi[userId - 1])) + 0.005;
     return result;
 }
 
 double evaluate(int userId, int movieId)
 {
     double result = mean + bu[userId - 1] + bi[movieId - 1] + 
-        dot(p[userId - 1], q[movieId - 1]);
+        dot(p[userId - 1], q[movieId - 1], userId, movieId);
     if (result < 1.0) {
         result = 1.0;
     }
@@ -75,16 +71,16 @@ double learnPQ(int i, float *data, double rmae)
     double evaluation = evaluate(userId, movieId);
     double err = value - evaluation;
     rmae += err * err;
+    yi[userId - 1] -= 4.0 * alpha * (err - 4.0 * BETA * yi[userId - 1]);
+    yj[movieId - 1] -= 4.5 * alpha * (err - 1.0 * BETA * yj[movieId - 1]);
     bu[userId - 1] += alpha * (err - BETA * bu[userId - 1]);
     bi[movieId - 1] += alpha * (err - BETA * bi[movieId - 1]);
-    for (int k = 0; k < DIM; ++k) {
     //for (int j = 0; j < DIM; ++j) {
         //int k = rand() % DIM;
-        p[userId - 1][k] += alpha * (err * q[movieId - 1][k] - 
-                BETA * p[userId - 1][k]);
-        q[movieId - 1][k] += alpha * (err * p[userId - 1][k] - 
-                BETA * q[movieId - 1][k]);
-    }
+        p[userId - 1] += alpha * (err * q[movieId - 1] - 
+                BETA * p[userId - 1]);
+        q[movieId - 1] += alpha * (err * p[userId - 1] - 
+                BETA * q[movieId - 1]);
 
     return rmae;
 }
@@ -144,7 +140,7 @@ int main()
         }
 
         rmae /= 80000;
-        cout << "step: " << step << " rmae: " << rmae << endl;
+        //cout << "step: " << step << " rmae: " << rmae << endl;
         if (rmae <= preRmae) {
             preRmae = rmae;
         }

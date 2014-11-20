@@ -199,9 +199,6 @@ class ItemCFRecommender(CFRecommender):
         nearest_neighbors = self.nearest_neighbors.setdefault(item_id, \
                 self.build_neighborhood(item_id, self.model, self.similarity.metrix))
 
-        preference = 0.0
-        total_similarity = 0.0
-
         # 获取相似项目群内每位项目的相似度，已经过滤掉NaN了
         similarities = self.neighbors_similarity.setdefault(user_id, \
                 np.array([similarity for neighbor, similarity in nearest_neighbors]))
@@ -215,9 +212,10 @@ class ItemCFRecommender(CFRecommender):
         similarities = similarities[~np.isnan(preferences)]
 
         # 根据各自的权重汇总，得出总打分
-        prefs_sim = np.sum(preferences[~np.isnan(similarities)] *
-                             similarities[~np.isnan(similarities)])
-        total_similarity = np.sum(similarities)
+        prefs_sim = sum([prefs * sim for prefs, sim in zip(preferences, similarities)])
+        #prefs_sim = np.sum(preferences[~np.isnan(similarities)] *
+                             #similarities[~np.isnan(similarities)])
+        total_similarity = sum(similarities)
 
         # 相似度无法判断
         if total_similarity == 0.0 or \
@@ -228,10 +226,10 @@ class ItemCFRecommender(CFRecommender):
         estimated = prefs_sim / total_similarity
 
         # 分数范围在1到5之间
-        if estimated <= self.model.min_preference_value() :
-            estimated = self.model.min_preference_value()
-        elif estimated >= self.model.max_preference_value() :
-            estimated = self.model.max_preference_value()
+        if estimated < 1 :
+            estimated = 1
+        elif estimated > 5 :
+            estimated = 5
 
         return (user_id, item_id, estimated)
 
@@ -242,7 +240,7 @@ class ItemCFRecommender(CFRecommender):
         The length of result is defined as num_best in Similarity
         """
         # 只能是正相关
-        minimal_similarity = 0.0
+        minimal_similarity = 0.2
 
         neighborhood = [(neighbor, score) for neighbor, score in self.similarity[item_id] \
                            if not np.isnan(score) and score >= minimal_similarity \
@@ -252,7 +250,8 @@ class ItemCFRecommender(CFRecommender):
     def recommend(self, user_id, item_id) :
         try :
             return self._recommend(user_id, item_id)
-        except Exception :
-            print 'lost!'
+        except Exception:
+            print 'not found!'
             return (user_id, item_id, 4.0)
+
 

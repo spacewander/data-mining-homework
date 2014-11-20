@@ -4,5 +4,5 @@ file(GLOB MAIN_SRCS
     "*.cpp"
     "*.hpp"
 )
-set( CMAKE_CXX_FLAGS "-std=c++11" )
+set( CMAKE_CXX_FLAGS "-std=c++11 -O2" )
 ADD_EXECUTABLE(datamining ${MAIN_SRCS})

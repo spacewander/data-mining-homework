@@ -1,11 +1,14 @@
 # coding: utf-8
 
+import os.path
+import cPickle
 import numpy as np
 from utils import UserNotFoundError, ItemNotFoundError
 
 class DataModel(object):
     def __init__(self, data):
         self.data = data
+        self.aver = {}
         self.build_model()
 
     def __len__(self):
@@ -116,12 +119,20 @@ class ItemPreferenceDataModel(DataModel):
         self.item_ids = np.unique(np.array(self.item_ids))
         self.item_ids.sort()
 
-        self.index = np.empty(shape=(self.item_ids.size, self.user_ids.size))
-        for item_no, item_id in enumerate(self.item_ids):
-            for user_no, user_id in enumerate(self.user_ids):
-                # 如果该用户没有看过某电影，设置为NaN而不是0
-                r = self.data[user_id].get(item_id, np.NaN)
-                self.index[item_no, user_no] = r
+
+        if os.path.exists('cache_' + self.__class__.__name__) :
+            with open('cache_' + self.__class__.__name__, 'r') as f :
+                self.index = cPickle.load(f)
+        else :
+            self.index = np.empty(shape=(self.item_ids.size, self.user_ids.size))
+            for item_no, item_id in enumerate(self.item_ids):
+                for user_no, user_id in enumerate(self.user_ids):
+                    # 如果该用户没有看过某电影，设置为NaN而不是0
+                    r = self.data[user_id].get(item_id, np.NaN)
+                    self.index[item_no, user_no] = r
+            with open('cache_' + self.__class__.__name__, 'w') as f :
+                cPickle.dump(self.index, f)
+
 
     def preference_values_from_item(self, item_id):
         """
@@ -141,7 +152,7 @@ class ItemPreferenceDataModel(DataModel):
         data = zip(self.user_ids, preferences.flatten())
 
         return [(user_id, preference)  for user_id, preference in data \
-                         if not np.isnan(preference)]
+                         if preference is not np.NaN]
 
     def preference_value(self, user_id, item_id):
         '''

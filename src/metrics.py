@@ -34,4 +34,8 @@ def manhattan_distances(X, Y):
 
     XY = ssd.cdist(X, Y, 'cityblock')
 
+    print X
+    print Y
+    print XY
+    print X.shape[1]
     return 1.0 - (XY / float(X.shape[1]))

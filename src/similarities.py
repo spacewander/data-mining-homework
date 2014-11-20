@@ -102,6 +102,8 @@ class ItemSimilarity(Similarity):
         super(ItemSimilarity, self).__init__(model, metrix, num_best)
 
     def get_similarity(self, reference_id, target_id):
+        print reference_id
+        print target_id
         """
         返回结果可能是个多维数组
         """

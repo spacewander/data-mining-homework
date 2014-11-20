@@ -68,10 +68,9 @@ if __name__ == '__main__' :
             value = rounding(value)
             results.write("%s\t%s\t%s\n" % (user, movie, value))
             deviation.append(abs(value - float(datum[2])))
-            if i % 201 == 200 :
-                print "已处理：第%d条\t%s\t%s\t%s\t%s" % (i, user, movie, value, datum[2])
-                MAE(deviation)
-                RMSE(deviation)
+            print "已处理：第%d条\t%s\t%s\t%s\t%s" % (i, user, movie, value, datum[2])
+            if i > 50 :
+                break
     # evaluate the output
     MAE(deviation)
     RMSE(deviation)
