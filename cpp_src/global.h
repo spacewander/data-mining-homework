@@ -7,9 +7,8 @@ using std::vector;
 
 #define USER_NUM 943
 #define ITEM_NUN 1682
-#define BETA 0.001
 
-const int DIM = 1;
+#define BETA 0.001548
 
 double alpha = 0.013;
 
@@ -23,6 +22,6 @@ vector<double> p(USER_NUM, 0.0);
 vector<double> q(ITEM_NUN, 0.0);
 vector<double> yj(ITEM_NUN, -0.1);
 vector<double> yi(USER_NUM, -0.1);
-float mean = 0;
+float mean = 0.0;
 
 #endif /* GLOBAL_H */

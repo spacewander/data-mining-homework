@@ -1,36 +1,14 @@
+#include <stdlib.h>
 #include <cmath>
 #include <fstream>
 #include <iostream>
 #include <map>
 #include <unordered_map>
-//#include "similarities.hpp"
 #include "global.h"
 
 #define TRAIN_FILE "../data-rs/80train.txt"
 #define TEST_FILE "../data-rs/test.txt"
 #define RESULT_FILE "../results.txt"
-
-int my_round(float input)
-{
-    //if (input > 4) {
-        //if (input > 4.395) {
-            //return 5;
-        //}
-        //else {
-            //return 4;
-        //}
-    //}
-    //else if (input < 2) {
-        //if (input < 1.65) {
-            //return 1;
-        //}
-        //else {
-            //return 2;
-        //}
-    //}
-    return round(input);
-}
-
 
 void fillWithRand(double &p)
 {
@@ -54,11 +32,20 @@ double evaluate(int userId, int movieId)
 {
     double result = mean + bu[userId - 1] + bi[movieId - 1] + 
         dot(p[userId - 1], q[movieId - 1], userId, movieId);
-    if (result < 1.0) {
-        result = 1.0;
+    double weight = 1.0;
+    // tune
+    if (result < 1.514) {
+        weight = 0.9;
     }
+    if (result > 4.3516) {
+        weight = 1.1;
+    }
+    result *= weight;
     if (result > 5.0) {
         result = 5.0;
+    }
+    else if (result < 1.0) {
+        result = 1.0;
     }
     return result;
 }
@@ -71,16 +58,14 @@ double learnPQ(int i, float *data, double rmae)
     double evaluation = evaluate(userId, movieId);
     double err = value - evaluation;
     rmae += err * err;
-    yi[userId - 1] -= 4.0 * alpha * (err - 4.0 * BETA * yi[userId - 1]);
-    yj[movieId - 1] -= 4.5 * alpha * (err - 1.0 * BETA * yj[movieId - 1]);
+    yi[userId - 1] -= 3.6104 * alpha * (err - 4.46 * BETA * yi[userId - 1]);
+    yj[movieId - 1] -= 4.5 * alpha * (err - 1.416 * BETA * yj[movieId - 1]);
     bu[userId - 1] += alpha * (err - BETA * bu[userId - 1]);
     bi[movieId - 1] += alpha * (err - BETA * bi[movieId - 1]);
-    //for (int j = 0; j < DIM; ++j) {
-        //int k = rand() % DIM;
-        p[userId - 1] += alpha * (err * q[movieId - 1] - 
-                BETA * p[userId - 1]);
-        q[movieId - 1] += alpha * (err * p[userId - 1] - 
-                BETA * q[movieId - 1]);
+    p[userId - 1] += alpha * (err * q[movieId - 1] - 
+            BETA * p[userId - 1]);
+    q[movieId - 1] += alpha * (err * p[userId - 1] - 
+            BETA * q[movieId - 1]);
 
     return rmae;
 }
@@ -147,7 +132,7 @@ int main()
         else {
             break;
         }
-        alpha *= 0.885;
+        alpha *= 0.87864;
     }
 
     ifstream testData(TEST_FILE);
@@ -161,7 +146,7 @@ int main()
         testData >> value;
         testData >> timestamp; // ignore timestamp
 
-        evaluation = my_round(evaluate(userId, movieId));
+        evaluation = round(evaluate(userId, movieId));
         //cout << userId << "\t" << movieId << "\t" << evaluation
             //<< "\t" << value << endl;
         resultsData << userId << "\t" << movieId << "\t" << evaluation
@@ -173,8 +158,8 @@ int main()
     testData.close();
     resultsData.close();
 
-    cout << "MAE : " << MAE / length << endl;
-    cout << "RMAE : " << sqrt(RMAE / length) << endl;
+    cout << "MAE :" << MAE / length << endl;
+    cout << "RMAE :" << sqrt(RMAE / length) << endl;
     delete[] data;
     return 0;
 }
